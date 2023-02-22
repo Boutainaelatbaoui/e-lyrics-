@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Lyrics;
+use Illuminate\Support\Facades\Validator;
 
 class LyricsController extends Controller
 {
@@ -37,12 +38,16 @@ class LyricsController extends Controller
      */
     public function store(Request $request)
     {
-        $validateData = $request->validate([
-            'song_id' => 'required',
-            'lyrics' => 'required | string',
 
+        $validator = Validator::make($request->all(),[
+            'song_id' => 'required | integer',
+            'lyrics' => 'required | string',
         ]);
-            
+
+        if($validator->fails()){
+            return response()->json($validator->errors());       
+        }
+        
         $lyrics = new Lyrics;
         $lyrics->song_id = $request->song_id;
         $lyrics->lyrics = $request->lyrics;
@@ -86,11 +91,14 @@ class LyricsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validateData = $request->validate([
-            'song_id' => 'required',
+        $validator = Validator::make($request->all(),[
+            'song_id' => 'required | integer',
             'lyrics' => 'required | string',
-
         ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors());       
+        }
         
         $lyrics = Lyrics::find($id); 
         if (is_null($lyrics)) {
